@@ -11,6 +11,7 @@ export default class VideoMandala{
 		
 		this.rings = [];
 		this.rotationSpeed = 0.01;
+		this.scaleNodes = [];
 
 		var rotate = {
             title:"Rotation Effect",
@@ -66,6 +67,7 @@ export default class VideoMandala{
 				let sNode = vc.createEffectNode(VideoContext.DEFINITIONS.AAF_VIDEO_SCALE);
 				sNode.scaleX = 0.6*(((rings - ring)+0.2)/rings);
 				sNode.scaleY = 0.6*(((rings - ring)+0.2)/rings);
+				this.scaleNodes.push(sNode);
 				let pNode = vc.createEffectNode(VideoContext.DEFINITIONS.AAF_VIDEO_POSITION);
 				pNode.positionOffsetY = 0.5;
 				let rNode = vc.createEffectNode(rotate);
@@ -77,7 +79,7 @@ export default class VideoMandala{
 			}
 		}
 
-		this.videoNode.registerCallback("render", function(){
+		this.videoNode.registerCallback("render", function(node, dt){
 			for (var i = 0; i < ringNodes.length; i++) {
 				if (i%2 ===0){
 					ringNodes[i].rotation += _this.rotationSpeed * (ringNodes.length/i);

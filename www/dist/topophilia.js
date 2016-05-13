@@ -155,7 +155,9 @@ var Topophilia =
 	        //offsetNode1.connect(vc.destination);
 	        //offsetNode2.connect(vc.destination);
 
-	        var vMandala = new _VideoMandalaJs2["default"]("./assets/clip.mp4", [0.0, 0.55, 0.0], vc);
+	        var vMandala = new _VideoMandalaJs2["default"]("./assets/clip.mp4", [0.0, 0.50, 0.0], vc);
+	        document.body.appendChild(_node_modulesVideocontextSrcVideocontextJs2["default"].createControlFormForNode(vMandala.gsNode, "GREENSCREEN NODE"));
+
 	        vMandala.videoNode.startAt(0);
 	        vMandala.node.connect(vc.destination);
 
@@ -175,7 +177,7 @@ var Topophilia =
 	        value: function webcamCallback(direction) {
 	            //  console.log(direction.u, direction.v);
 	            this._webcamSmoothingBuffer.unshift(direction.u / 50);
-	            if (this._webcamSmoothingBuffer.length > 5) {
+	            if (this._webcamSmoothingBuffer.length > 2) {
 	                this._webcamSmoothingBuffer.pop(0);
 	            }
 
@@ -4190,7 +4192,7 @@ var Topophilia =
 
 				if (this._previousIndex !== index) {
 					this.ctx.globalAlpha = 1.0;
-					this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+					//this.ctx.clearRect(0,0,this.canvas.width, this.canvas.height);
 					this.ctx.drawImage(this.images[index], 0, 0);
 				}
 				this._previousIndex = index;
@@ -4246,6 +4248,7 @@ var Topophilia =
 
 		this.rings = [];
 		this.rotationSpeed = 0.01;
+		this.scaleNodes = [];
 
 		var rotate = {
 			title: "Rotation Effect",
@@ -4299,6 +4302,7 @@ var Topophilia =
 				var sNode = vc.createEffectNode(_node_modulesVideocontextSrcVideocontextJs2["default"].DEFINITIONS.AAF_VIDEO_SCALE);
 				sNode.scaleX = 0.6 * ((rings - ring + 0.2) / rings);
 				sNode.scaleY = 0.6 * ((rings - ring + 0.2) / rings);
+				this.scaleNodes.push(sNode);
 				var pNode = vc.createEffectNode(_node_modulesVideocontextSrcVideocontextJs2["default"].DEFINITIONS.AAF_VIDEO_POSITION);
 				pNode.positionOffsetY = 0.5;
 				var _rNode = vc.createEffectNode(rotate);
@@ -4310,7 +4314,7 @@ var Topophilia =
 			}
 		}
 
-		this.videoNode.registerCallback("render", function () {
+		this.videoNode.registerCallback("render", function (node, dt) {
 			for (var i = 0; i < ringNodes.length; i++) {
 				if (i % 2 === 0) {
 					ringNodes[i].rotation += _this.rotationSpeed * (ringNodes.length / i);

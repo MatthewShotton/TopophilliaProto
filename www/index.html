@@ -2,18 +2,18 @@
 <html>
 <head>
     <title></title>
-    <script type="text/javascript" src="/node_modules/oflow/dist/oflow.js"></script>
-    <script type="text/javascript" src="/dist/topophilia.js"></script>
+    <script type="text/javascript" src="./node_modules/oflow/dist/oflow.js"></script>
+    <script type="text/javascript" src="./dist/topophilia.js"></script>
 </head>
 <body>
     <p>
         <canvas id="canvas" width="960", height="540"></canvas>
     </p>
     <p>
-        <canvas id="timeline-canvas" width="480", height="30"></canvas>
+        <canvas id="timeline-canvas" width="960", height="30"></canvas>
     </p>
     <p>
-        <canvas id="graph-canvas" width="480", height="150"></canvas>
+        <canvas id="graph-canvas" width="960", height="400"></canvas>
     </p>
 
     <script type="text/javascript">
@@ -21,7 +21,7 @@
         	var canvas = document.getElementById("canvas");
         	var topophilia = new Topophilia(canvas);
 
-            var webCamFlow = new oflow.WebCamFlow(undefined, 64);
+            var webCamFlow = new oflow.WebCamFlow(undefined, 4);
          	var flow = new oflow.WebCamFlow();
 			flow.onCalculated(function(direction){
 				topophilia.webcamCallback(direction);

@@ -44,7 +44,7 @@ export default class ImageSequencePlayer{
 
 		if(this._previousIndex !== index){
 			this.ctx.globalAlpha = 1.0;
-			this.ctx.clearRect(0,0,this.canvas.width, this.canvas.height);
+			//this.ctx.clearRect(0,0,this.canvas.width, this.canvas.height);
 			this.ctx.drawImage(this.images[index],0,0);
 		}
 		this._previousIndex = index;

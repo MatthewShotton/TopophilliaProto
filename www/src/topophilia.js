@@ -99,7 +99,9 @@ export default class Topophilia{
 
 
 
-        let vMandala = new VideoMandala("./assets/clip.mp4",[0.0,0.55,0.0], vc);
+        let vMandala = new VideoMandala("./assets/clip.mp4",[0.0,0.50,0.0], vc);
+        document.body.appendChild(VideoContext.createControlFormForNode(vMandala.gsNode, "GREENSCREEN NODE"));
+
         vMandala.videoNode.startAt(0);
         vMandala.node.connect(vc.destination);
 
@@ -120,7 +122,7 @@ export default class Topophilia{
     webcamCallback(direction){
         //  console.log(direction.u, direction.v);
         this._webcamSmoothingBuffer.unshift(direction.u/50);
-        if (this._webcamSmoothingBuffer.length > 5){
+        if (this._webcamSmoothingBuffer.length > 2){
             this._webcamSmoothingBuffer.pop(0);
         }
 
