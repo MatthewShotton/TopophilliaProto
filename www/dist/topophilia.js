@@ -65,6 +65,10 @@ var Topophilia =
 
 	var _ImageSequencePlayerJs2 = _interopRequireDefault(_ImageSequencePlayerJs);
 
+	var _VideoMandalaJs = __webpack_require__(16);
+
+	var _VideoMandalaJs2 = _interopRequireDefault(_VideoMandalaJs);
+
 	var Topophilia = (function () {
 	    function Topophilia(canvas) {
 	        _classCallCheck(this, Topophilia);
@@ -107,33 +111,32 @@ var Topophilia =
 	        this.imagePlayer = imagePlayer;
 	        imagePlayer.node.startAt(0);
 
-	        var videoPlayer = vc.createVideoSourceNode("./assets/clip.mp4", undefined, undefined, true);
-	        videoPlayer.startAt(0);
+	        // let videoPlayer = vc.createVideoSourceNode("./assets/clip.mp4", undefined, undefined, true);
+	        // videoPlayer.startAt(0);
 
-	        var gsNode = vc.createEffectNode(_node_modulesVideocontextSrcVideocontextJs2["default"].DEFINITIONS.COLORTHRESHOLD);
-	        //gsNode.colorAlphaThreshold = [0,0.8,0];
-	        videoPlayer.connect(gsNode);
-	        var scaleNode1 = vc.createEffectNode(_node_modulesVideocontextSrcVideocontextJs2["default"].DEFINITIONS.AAF_VIDEO_SCALE);
-	        var offsetNode1 = vc.createEffectNode(_node_modulesVideocontextSrcVideocontextJs2["default"].DEFINITIONS.AAF_VIDEO_POSITION);
-	        gsNode.connect(scaleNode1);
-	        scaleNode1.scaleX = 0.6;
-	        scaleNode1.scaleY = 0.6;
-	        offsetNode1.positionOffsetX = 0.4;
-	        offsetNode1.positionOffsetY = -0.4;
-	        scaleNode1.connect(offsetNode1);
+	        // let gsNode = vc.createEffectNode(VideoContext.DEFINITIONS.COLORTHRESHOLD);
+	        // //gsNode.colorAlphaThreshold = [0,0.8,0];
+	        // videoPlayer.connect(gsNode);
+	        // let scaleNode1 = vc.createEffectNode(VideoContext.DEFINITIONS.AAF_VIDEO_SCALE);
+	        // let offsetNode1 = vc.createEffectNode(VideoContext.DEFINITIONS.AAF_VIDEO_POSITION);
+	        // gsNode.connect(scaleNode1);
+	        // scaleNode1.scaleX = 0.6;
+	        // scaleNode1.scaleY = 0.6;
+	        // offsetNode1.positionOffsetX = 0.4;
+	        // offsetNode1.positionOffsetY = -0.4;
+	        // scaleNode1.connect(offsetNode1);
 
-	        var scaleNode2 = vc.createEffectNode(_node_modulesVideocontextSrcVideocontextJs2["default"].DEFINITIONS.AAF_VIDEO_SCALE);
-	        var offsetNode2 = vc.createEffectNode(_node_modulesVideocontextSrcVideocontextJs2["default"].DEFINITIONS.AAF_VIDEO_POSITION);
-	        gsNode.connect(scaleNode2);
-	        scaleNode2.scaleX = 0.6;
-	        scaleNode2.scaleY = 0.6;
-	        offsetNode2.positionOffsetX = -0.4;
-	        offsetNode2.positionOffsetY = -0.4;
-	        scaleNode2.connect(offsetNode2);
+	        // let scaleNode2 = vc.createEffectNode(VideoContext.DEFINITIONS.AAF_VIDEO_SCALE);
+	        // let offsetNode2 = vc.createEffectNode(VideoContext.DEFINITIONS.AAF_VIDEO_POSITION);
+	        // gsNode.connect(scaleNode2);
+	        // scaleNode2.scaleX = 0.6;
+	        // scaleNode2.scaleY = 0.6;
+	        // offsetNode2.positionOffsetX = -0.4;
+	        // offsetNode2.positionOffsetY = -0.4;
+	        // scaleNode2.connect(offsetNode2);
 
 	        //document.body.appendChild(VideoContext.createControlFormForNode(gsNode, "GREENSCREEN NODE"));
 
-	        imagePlayer.node.connect(vc.destination);
 	        var displaceNode4 = vc.createEffectNode(_node_modulesVideocontextSrcVideocontextJs2["default"].DEFINITIONS.AAF_VIDEO_POSITION);
 	        var flipNode4 = vc.createEffectNode(_node_modulesVideocontextSrcVideocontextJs2["default"].DEFINITIONS.AAF_VIDEO_FLIP);
 	        displaceNode4.positionOffsetX = 0.5;
@@ -146,11 +149,21 @@ var Topophilia =
 	        imagePlayer.node.connect(displaceNode5);
 	        displaceNode5.connect(flipNode5);
 
-	        gsNode.connect(vc.destination);
+	        //gsNode.connect(vc.destination);       
 	        flipNode4.connect(vc.destination);
 	        flipNode5.connect(vc.destination);
-	        offsetNode1.connect(vc.destination);
-	        offsetNode2.connect(vc.destination);
+	        //offsetNode1.connect(vc.destination);
+	        //offsetNode2.connect(vc.destination);
+
+	        var vMandala = new _VideoMandalaJs2["default"]("./assets/clip.mp4", [0.0, 0.55, 0.0], vc);
+	        vMandala.videoNode.startAt(0);
+	        vMandala.node.connect(vc.destination);
+
+	        var centerImageNode = vc.createEffectNode(_node_modulesVideocontextSrcVideocontextJs2["default"].DEFINITIONS.AAF_VIDEO_SCALE);
+	        centerImageNode.scaleX = 0.6;
+	        centerImageNode.scaleY = 0.6;
+	        centerImageNode.connect(vc.destination);
+	        imagePlayer.node.connect(centerImageNode);
 
 	        //this.initDebug();
 	        this.previousRate = 0.0;
@@ -161,7 +174,7 @@ var Topophilia =
 	        key: "webcamCallback",
 	        value: function webcamCallback(direction) {
 	            //  console.log(direction.u, direction.v);
-	            this._webcamSmoothingBuffer.unshift(direction.u / 150);
+	            this._webcamSmoothingBuffer.unshift(direction.u / 50);
 	            if (this._webcamSmoothingBuffer.length > 5) {
 	                this._webcamSmoothingBuffer.pop(0);
 	            }
@@ -4196,6 +4209,119 @@ var Topophilia =
 	})();
 
 	exports["default"] = ImageSequencePlayer;
+	module.exports = exports["default"];
+
+/***/ },
+/* 16 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var _node_modulesVideocontextSrcVideocontextJs = __webpack_require__(1);
+
+	var _node_modulesVideocontextSrcVideocontextJs2 = _interopRequireDefault(_node_modulesVideocontextSrcVideocontextJs);
+
+	var VideoMandala = function VideoMandala(videoURL, alphaThreshold, vc) {
+		var petals = arguments.length <= 3 || arguments[3] === undefined ? 8 : arguments[3];
+		var rings = arguments.length <= 4 || arguments[4] === undefined ? 4 : arguments[4];
+
+		_classCallCheck(this, VideoMandala);
+
+		var _this = this;
+		this.gsNode = vc.createEffectNode(_node_modulesVideocontextSrcVideocontextJs2["default"].DEFINITIONS.COLORTHRESHOLD);
+		this.gsNode.colorAlphaThreshold = alphaThreshold;
+		this.videoNode = vc.createVideoSourceNode(videoURL, undefined, undefined, true);
+		setTimeout(function () {
+			_this.videoNode._element.volume = 0.0;
+		}, 1000);
+		this.videoNode.connect(this.gsNode);
+
+		this.rings = [];
+		this.rotationSpeed = 0.01;
+
+		var rotate = {
+			title: "Rotation Effect",
+			description: "A rotation effect.",
+			vertexShader: "\
+	                attribute vec2 a_position;\
+	                attribute vec2 a_texCoord;\
+	                varying vec2 v_texCoord;\
+	                void main() {\
+	                    gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);\
+	                    v_texCoord = a_texCoord;\
+	                }",
+			fragmentShader: "\
+	                precision mediump float;\
+	                uniform sampler2D u_image;\
+	                uniform float rotation;\
+	                uniform float mid;\
+	                varying vec2 v_texCoord;\
+	                void main(){\
+	                    vec2 pos = vec2(v_texCoord[0], v_texCoord[1]);\
+	      				vec2 rotated = vec2(cos(rotation) * (pos.x - mid) + sin(rotation) * (pos.y - mid) + mid,\
+	                          cos(rotation) * (pos.y - mid) - sin(rotation) * (pos.x - mid) + mid);\
+	                    vec4 color = texture2D(u_image, rotated);\
+	                    ;\
+	                    if (rotated[0] < 0.0 || rotated[0] > 1.0 || rotated[1] < 0.0 || rotated[1] > 1.0){\
+	                        color = vec4(0.0,0.0,0.0,0.0);\
+	                    }\
+	                    gl_FragColor = color;\
+	                }",
+			properties: {
+				"rotation": { type: "uniform", value: 0.0 },
+				"mid": { type: "uniform", value: 0.5 }
+			},
+			inputs: ["u_image"]
+		};
+
+		var rNode = vc.createEffectNode(rotate);
+
+		this.node = vc.createCompositingNode(_node_modulesVideocontextSrcVideocontextJs2["default"].DEFINITIONS.COMBINE);
+
+		var ringNodes = [];
+
+		for (var ring = 0; ring < rings; ring++) {
+			var ringNode = vc.createCompositingNode(_node_modulesVideocontextSrcVideocontextJs2["default"].DEFINITIONS.COMBINE);
+			var ringRotate = vc.createEffectNode(rotate);
+			ringNode.connect(ringRotate);
+			ringRotate.connect(this.node);
+			ringNodes.push(ringRotate);
+
+			for (var petal = 0; petal < petals; petal++) {
+				var sNode = vc.createEffectNode(_node_modulesVideocontextSrcVideocontextJs2["default"].DEFINITIONS.AAF_VIDEO_SCALE);
+				sNode.scaleX = 0.6 * ((rings - ring + 0.2) / rings);
+				sNode.scaleY = 0.6 * ((rings - ring + 0.2) / rings);
+				var pNode = vc.createEffectNode(_node_modulesVideocontextSrcVideocontextJs2["default"].DEFINITIONS.AAF_VIDEO_POSITION);
+				pNode.positionOffsetY = 0.5;
+				var _rNode = vc.createEffectNode(rotate);
+				_rNode.rotation = 2 * Math.PI / petals * petal + ring * 2;
+				this.gsNode.connect(sNode);
+				sNode.connect(pNode);
+				pNode.connect(_rNode);
+				_rNode.connect(ringNode);
+			}
+		}
+
+		this.videoNode.registerCallback("render", function () {
+			for (var i = 0; i < ringNodes.length; i++) {
+				if (i % 2 === 0) {
+					ringNodes[i].rotation += _this.rotationSpeed * (ringNodes.length / i);
+				} else {
+					ringNodes[i].rotation -= _this.rotationSpeed * (ringNodes.length / i);
+				}
+			}
+		});
+	};
+
+	exports["default"] = VideoMandala;
 	module.exports = exports["default"];
 
 /***/ }

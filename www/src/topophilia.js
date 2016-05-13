@@ -1,5 +1,6 @@
 import VideoContext from "../node_modules/videocontext/src/videocontext.js";
 import ImageSequencePlayer from "./ImageSequencePlayer.js";
+import VideoMandala from "./VideoMandala.js";
 
 export default class Topophilia{
     constructor(canvas){
@@ -43,38 +44,37 @@ export default class Topophilia{
         imagePlayer.node.startAt(0);
 
 
-        let videoPlayer = vc.createVideoSourceNode("./assets/clip.mp4", undefined, undefined, true);
-        videoPlayer.startAt(0);
+        // let videoPlayer = vc.createVideoSourceNode("./assets/clip.mp4", undefined, undefined, true);
+        // videoPlayer.startAt(0);
 
 
-        let gsNode = vc.createEffectNode(VideoContext.DEFINITIONS.COLORTHRESHOLD);
-        //gsNode.colorAlphaThreshold = [0,0.8,0];
-        videoPlayer.connect(gsNode);
-        let scaleNode1 = vc.createEffectNode(VideoContext.DEFINITIONS.AAF_VIDEO_SCALE);
-        let offsetNode1 = vc.createEffectNode(VideoContext.DEFINITIONS.AAF_VIDEO_POSITION);
-        gsNode.connect(scaleNode1);
-        scaleNode1.scaleX = 0.6;
-        scaleNode1.scaleY = 0.6;
-        offsetNode1.positionOffsetX = 0.4;
-        offsetNode1.positionOffsetY = -0.4;
-        scaleNode1.connect(offsetNode1);
+        // let gsNode = vc.createEffectNode(VideoContext.DEFINITIONS.COLORTHRESHOLD);
+        // //gsNode.colorAlphaThreshold = [0,0.8,0];
+        // videoPlayer.connect(gsNode);
+        // let scaleNode1 = vc.createEffectNode(VideoContext.DEFINITIONS.AAF_VIDEO_SCALE);
+        // let offsetNode1 = vc.createEffectNode(VideoContext.DEFINITIONS.AAF_VIDEO_POSITION);
+        // gsNode.connect(scaleNode1);
+        // scaleNode1.scaleX = 0.6;
+        // scaleNode1.scaleY = 0.6;
+        // offsetNode1.positionOffsetX = 0.4;
+        // offsetNode1.positionOffsetY = -0.4;
+        // scaleNode1.connect(offsetNode1);
 
 
-        let scaleNode2 = vc.createEffectNode(VideoContext.DEFINITIONS.AAF_VIDEO_SCALE);
-        let offsetNode2 = vc.createEffectNode(VideoContext.DEFINITIONS.AAF_VIDEO_POSITION);
-        gsNode.connect(scaleNode2);
-        scaleNode2.scaleX = 0.6;
-        scaleNode2.scaleY = 0.6;
-        offsetNode2.positionOffsetX = -0.4;
-        offsetNode2.positionOffsetY = -0.4;
-        scaleNode2.connect(offsetNode2);
+        // let scaleNode2 = vc.createEffectNode(VideoContext.DEFINITIONS.AAF_VIDEO_SCALE);
+        // let offsetNode2 = vc.createEffectNode(VideoContext.DEFINITIONS.AAF_VIDEO_POSITION);
+        // gsNode.connect(scaleNode2);
+        // scaleNode2.scaleX = 0.6;
+        // scaleNode2.scaleY = 0.6;
+        // offsetNode2.positionOffsetX = -0.4;
+        // offsetNode2.positionOffsetY = -0.4;
+        // scaleNode2.connect(offsetNode2);
 
 
 
 
         //document.body.appendChild(VideoContext.createControlFormForNode(gsNode, "GREENSCREEN NODE"));
         
-        imagePlayer.node.connect(vc.destination);
         let displaceNode4 = vc.createEffectNode(VideoContext.DEFINITIONS.AAF_VIDEO_POSITION);
         let flipNode4 = vc.createEffectNode(VideoContext.DEFINITIONS.AAF_VIDEO_FLIP);
         displaceNode4.positionOffsetX = 0.5;
@@ -91,11 +91,25 @@ export default class Topophilia{
 
 
 
-        gsNode.connect(vc.destination);        
+        //gsNode.connect(vc.destination);        
         flipNode4.connect(vc.destination);
         flipNode5.connect(vc.destination);
-        offsetNode1.connect(vc.destination);
-        offsetNode2.connect(vc.destination);
+        //offsetNode1.connect(vc.destination);
+        //offsetNode2.connect(vc.destination);
+
+
+
+        let vMandala = new VideoMandala("./assets/clip.mp4",[0.0,0.55,0.0], vc);
+        vMandala.videoNode.startAt(0);
+        vMandala.node.connect(vc.destination);
+
+        let centerImageNode = vc.createEffectNode(VideoContext.DEFINITIONS.AAF_VIDEO_SCALE);
+        centerImageNode.scaleX = 0.6;
+        centerImageNode.scaleY = 0.6;
+        centerImageNode.connect(vc.destination)
+        imagePlayer.node.connect(centerImageNode);
+
+
 
         //this.initDebug();
         this.previousRate = 0.0;
@@ -105,7 +119,7 @@ export default class Topophilia{
     
     webcamCallback(direction){
         //  console.log(direction.u, direction.v);
-        this._webcamSmoothingBuffer.unshift(direction.u/150);
+        this._webcamSmoothingBuffer.unshift(direction.u/50);
         if (this._webcamSmoothingBuffer.length > 5){
             this._webcamSmoothingBuffer.pop(0);
         }
