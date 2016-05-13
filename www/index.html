@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <script type="text/javascript" src="/node_modules/oflow/dist/oflow.js"></script>
+    <script type="text/javascript" src="/dist/topophilia.js"></script>
+</head>
+<body>
+    <p>
+        <canvas id="canvas" width="960", height="540"></canvas>
+    </p>
+    <p>
+        <canvas id="timeline-canvas" width="480", height="30"></canvas>
+    </p>
+    <p>
+        <canvas id="graph-canvas" width="480", height="150"></canvas>
+    </p>
+
+    <script type="text/javascript">
+        window.onload = function(){
+        	var canvas = document.getElementById("canvas");
+        	var topophilia = new Topophilia(canvas);
+
+            var webCamFlow = new oflow.WebCamFlow(undefined, 64);
+         	var flow = new oflow.WebCamFlow();
+			flow.onCalculated(function(direction){
+				topophilia.webcamCallback(direction);
+			});
+			// Starts capturing the flow from webcamera:
+			flow.startCapture();
+			// once you are done capturing call
+			//setTimeout(flow.stopCapture, 20000);
+        }
+    </script>
+</body>
+</html>
