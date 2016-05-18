@@ -20,7 +20,7 @@ export default class Scene1 extends Scene{
             let result = (pad+n).slice(-pad.length);
             imageURLS.push("./assets/topophillia/meadowsweet_sd/meadowsweet_test1_png_sequence_"+result+".png");
         }
-        //imageURLS.reverse();	
+        imageURLS.reverse();	
         let imagePlayer = new ImageSequencePlayer(imageURLS, vc);
         this.imagePlayer = imagePlayer;
         this.registerSource(imagePlayer.node);

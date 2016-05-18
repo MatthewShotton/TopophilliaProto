@@ -77,6 +77,10 @@ var Topophilia =
 
 	var _scenesScene2Js2 = _interopRequireDefault(_scenesScene2Js);
 
+	var _scenesTitleJs = __webpack_require__(20);
+
+	var _scenesTitleJs2 = _interopRequireDefault(_scenesTitleJs);
+
 	var Topophilia = (function () {
 	    function Topophilia(canvas) {
 	        _classCallCheck(this, Topophilia);
@@ -99,10 +103,13 @@ var Topophilia =
 	        this.registerWebcamCallback(scene1.webcamCallback.bind(scene1));
 	        scene1.start(0);
 	        scene1.stop(32);
-
 	        vc.registerTimelineCallback(58, function () {
 	            scene1.start(0);
 	        });
+
+	        var title = new _scenesTitleJs2["default"](vc, scene1);
+	        title.start(0);
+	        title.stop(10);
 
 	        var scene2 = new _scenesScene2Js2["default"](vc);
 	        scene2.start(30);
@@ -119,6 +126,7 @@ var Topophilia =
 	        transitionNode.transition(30, 32, 1.0, "mix");
 	        transitionNode.transition(58, 60, 0.0, "mix");
 	        console.log(transitionNode.mix);
+	        title.output.connect(vc.destination);
 
 	        //let vMandala = new VideoMandala("assets/topophillia/honeysuckle_test1_chroma_h264.mov",[0.0,0.0,0.85], vc);
 	        // document.body.appendChild(VideoContext.createControlFormForNode(vMandala.gsNode, "GREENSCREEN NODE"));
@@ -1482,11 +1490,16 @@ var Topophilia =
 	                fragmentShader: "\
 	                    precision mediump float;\
 	                    uniform sampler2D u_image;\
+	                    uniform float a;\
 	                    varying vec2 v_texCoord;\
+	                    varying float v_mix;\
 	                    void main(){\
-	                        gl_FragColor = texture2D(u_image, v_texCoord);;\
+	                        vec4 color = texture2D(u_image, v_texCoord);\
+	                        gl_FragColor = color;\
 	                    }",
-	                properties: {},
+	                properties: {
+	                    "a": { type: "uniform", value: 0.0 }
+	                },
 	                inputs: ["u_image"]
 	            };
 
@@ -1555,11 +1568,125 @@ var Topophilia =
 	                inputs: ["u_image"]
 	            };
 
+	            var hoizontalBlur = {
+	                title: "Horizontal Blur",
+	                description: "A horizontal blur effect. Adpated from http://xissburg.com/faster-gaussian-blur-in-glsl/",
+	                vertexShader: "\
+	                attribute vec2 a_position;\
+	                attribute vec2 a_texCoord;\
+	                uniform float blurAmount;\
+	                varying vec2 v_texCoord;\
+	                varying vec2 v_blurTexCoords[14];\
+	                void main() {\
+	                    gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);\
+	                    v_texCoord = a_texCoord;\
+	                    v_blurTexCoords[ 0] = v_texCoord + vec2(-0.028 * blurAmount, 0.0);\
+	                    v_blurTexCoords[ 1] = v_texCoord + vec2(-0.024 * blurAmount, 0.0);\
+	                    v_blurTexCoords[ 2] = v_texCoord + vec2(-0.020 * blurAmount, 0.0);\
+	                    v_blurTexCoords[ 3] = v_texCoord + vec2(-0.016 * blurAmount, 0.0);\
+	                    v_blurTexCoords[ 4] = v_texCoord + vec2(-0.012 * blurAmount, 0.0);\
+	                    v_blurTexCoords[ 5] = v_texCoord + vec2(-0.008 * blurAmount, 0.0);\
+	                    v_blurTexCoords[ 6] = v_texCoord + vec2(-0.004 * blurAmount, 0.0);\
+	                    v_blurTexCoords[ 7] = v_texCoord + vec2( 0.004 * blurAmount, 0.0);\
+	                    v_blurTexCoords[ 8] = v_texCoord + vec2( 0.008 * blurAmount, 0.0);\
+	                    v_blurTexCoords[ 9] = v_texCoord + vec2( 0.012 * blurAmount, 0.0);\
+	                    v_blurTexCoords[10] = v_texCoord + vec2( 0.016 * blurAmount, 0.0);\
+	                    v_blurTexCoords[11] = v_texCoord + vec2( 0.020 * blurAmount, 0.0);\
+	                    v_blurTexCoords[12] = v_texCoord + vec2( 0.024 * blurAmount, 0.0);\
+	                    v_blurTexCoords[13] = v_texCoord + vec2( 0.028 * blurAmount, 0.0);\
+	                }",
+	                fragmentShader: "\
+	                precision mediump float;\
+	                uniform sampler2D u_image;\
+	                varying vec2 v_texCoord;\
+	                varying vec2 v_blurTexCoords[14];\
+	                void main(){\
+	                    gl_FragColor = vec4(0.0);\
+	                    gl_FragColor += texture2D(u_image, v_blurTexCoords[ 0])*0.0044299121055113265;\
+	                    gl_FragColor += texture2D(u_image, v_blurTexCoords[ 1])*0.00895781211794;\
+	                    gl_FragColor += texture2D(u_image, v_blurTexCoords[ 2])*0.0215963866053;\
+	                    gl_FragColor += texture2D(u_image, v_blurTexCoords[ 3])*0.0443683338718;\
+	                    gl_FragColor += texture2D(u_image, v_blurTexCoords[ 4])*0.0776744219933;\
+	                    gl_FragColor += texture2D(u_image, v_blurTexCoords[ 5])*0.115876621105;\
+	                    gl_FragColor += texture2D(u_image, v_blurTexCoords[ 6])*0.147308056121;\
+	                    gl_FragColor += texture2D(u_image, v_texCoord         )*0.159576912161;\
+	                    gl_FragColor += texture2D(u_image, v_blurTexCoords[ 7])*0.147308056121;\
+	                    gl_FragColor += texture2D(u_image, v_blurTexCoords[ 8])*0.115876621105;\
+	                    gl_FragColor += texture2D(u_image, v_blurTexCoords[ 9])*0.0776744219933;\
+	                    gl_FragColor += texture2D(u_image, v_blurTexCoords[10])*0.0443683338718;\
+	                    gl_FragColor += texture2D(u_image, v_blurTexCoords[11])*0.0215963866053;\
+	                    gl_FragColor += texture2D(u_image, v_blurTexCoords[12])*0.00895781211794;\
+	                    gl_FragColor += texture2D(u_image, v_blurTexCoords[13])*0.0044299121055113265;\
+	                }",
+	                properties: {
+	                    "blurAmount": { type: "uniform", value: 1.0 }
+	                },
+	                inputs: ["u_image"]
+	            };
+
+	            var verticalBlur = {
+	                title: "Vertical Blur",
+	                description: "A vertical blur effect. Adpated from http://xissburg.com/faster-gaussian-blur-in-glsl/",
+	                vertexShader: "\
+	                attribute vec2 a_position;\
+	                attribute vec2 a_texCoord;\
+	                varying vec2 v_texCoord;\
+	                uniform float blurAmount;\
+	                varying vec2 v_blurTexCoords[14];\
+	                void main() {\
+	                    gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);\
+	                    v_texCoord = a_texCoord;\
+	                    v_blurTexCoords[ 0] = v_texCoord + vec2(0.0,-0.028 * blurAmount);\
+	                    v_blurTexCoords[ 1] = v_texCoord + vec2(0.0,-0.024 * blurAmount);\
+	                    v_blurTexCoords[ 2] = v_texCoord + vec2(0.0,-0.020 * blurAmount);\
+	                    v_blurTexCoords[ 3] = v_texCoord + vec2(0.0,-0.016 * blurAmount);\
+	                    v_blurTexCoords[ 4] = v_texCoord + vec2(0.0,-0.012 * blurAmount);\
+	                    v_blurTexCoords[ 5] = v_texCoord + vec2(0.0,-0.008 * blurAmount);\
+	                    v_blurTexCoords[ 6] = v_texCoord + vec2(0.0,-0.004 * blurAmount);\
+	                    v_blurTexCoords[ 7] = v_texCoord + vec2(0.0, 0.004 * blurAmount);\
+	                    v_blurTexCoords[ 8] = v_texCoord + vec2(0.0, 0.008 * blurAmount);\
+	                    v_blurTexCoords[ 9] = v_texCoord + vec2(0.0, 0.012 * blurAmount);\
+	                    v_blurTexCoords[10] = v_texCoord + vec2(0.0, 0.016 * blurAmount);\
+	                    v_blurTexCoords[11] = v_texCoord + vec2(0.0, 0.020 * blurAmount);\
+	                    v_blurTexCoords[12] = v_texCoord + vec2(0.0, 0.024 * blurAmount);\
+	                    v_blurTexCoords[13] = v_texCoord + vec2(0.0, 0.028 * blurAmount);\
+	                }",
+	                fragmentShader: "\
+	                precision mediump float;\
+	                uniform sampler2D u_image;\
+	                varying vec2 v_texCoord;\
+	                varying vec2 v_blurTexCoords[14];\
+	                void main(){\
+	                    gl_FragColor = vec4(0.0);\
+	                    gl_FragColor += texture2D(u_image, v_blurTexCoords[ 0])*0.0044299121055113265;\
+	                    gl_FragColor += texture2D(u_image, v_blurTexCoords[ 1])*0.00895781211794;\
+	                    gl_FragColor += texture2D(u_image, v_blurTexCoords[ 2])*0.0215963866053;\
+	                    gl_FragColor += texture2D(u_image, v_blurTexCoords[ 3])*0.0443683338718;\
+	                    gl_FragColor += texture2D(u_image, v_blurTexCoords[ 4])*0.0776744219933;\
+	                    gl_FragColor += texture2D(u_image, v_blurTexCoords[ 5])*0.115876621105;\
+	                    gl_FragColor += texture2D(u_image, v_blurTexCoords[ 6])*0.147308056121;\
+	                    gl_FragColor += texture2D(u_image, v_texCoord         )*0.159576912161;\
+	                    gl_FragColor += texture2D(u_image, v_blurTexCoords[ 7])*0.147308056121;\
+	                    gl_FragColor += texture2D(u_image, v_blurTexCoords[ 8])*0.115876621105;\
+	                    gl_FragColor += texture2D(u_image, v_blurTexCoords[ 9])*0.0776744219933;\
+	                    gl_FragColor += texture2D(u_image, v_blurTexCoords[10])*0.0443683338718;\
+	                    gl_FragColor += texture2D(u_image, v_blurTexCoords[11])*0.0215963866053;\
+	                    gl_FragColor += texture2D(u_image, v_blurTexCoords[12])*0.00895781211794;\
+	                    gl_FragColor += texture2D(u_image, v_blurTexCoords[13])*0.0044299121055113265;\
+	                }",
+	                properties: {
+	                    "blurAmount": { type: "uniform", value: 1.0 }
+	                },
+	                inputs: ["u_image"]
+	            };
+
 	            return {
 	                CROSSFADE: crossfade,
 	                COMBINE: combine,
 	                COLORTHRESHOLD: colorThreshold,
 	                MONOCHROME: monochrome,
+	                HORIZONTAL_BLUR: hoizontalBlur,
+	                VERTICAL_BLUR: verticalBlur,
 	                AAF_VIDEO_CROP: aaf_video_crop,
 	                AAF_VIDEO_POSITION: aaf_video_position,
 	                AAF_VIDEO_SCALE: aaf_video_scale,
@@ -1873,7 +2000,11 @@ var Topophilia =
 	                for (var _iterator = this._callbacks[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
 	                    var callback = _step.value;
 
-	                    if (callback.func === func) toRemove.push(callback);
+	                    if (func === undefined) {
+	                        toRemove.push(callback);
+	                    } else if (callback.func === func) {
+	                        toRemove.push(callback);
+	                    }
 	                }
 	            } catch (err) {
 	                _didIteratorError = true;
@@ -2940,7 +3071,7 @@ var Topophilia =
 	                    var _this = _this2;
 	                    _this2._element.onload = function () {
 	                        _this._ready = true;
-	                        this._triggerCallbacks("loaded");
+	                        _this._triggerCallbacks("loaded");
 	                    };
 	                })();
 	            }
@@ -3128,10 +3259,8 @@ var Topophilia =
 
 	            var gl = this._gl;
 	            gl.bindFramebuffer(gl.FRAMEBUFFER, this._framebuffer);
-	            //gl.colorMask(true, true, true, true);
-
 	            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this._texture, 0);
-	            gl.clearColor(0, 0, 0, 0.0); // green;
+	            gl.clearColor(0, 0, 0, 0); // green;
 	            gl.clear(gl.COLOR_BUFFER_BIT);
 	            gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
@@ -3174,11 +3303,8 @@ var Topophilia =
 
 	                gl.drawArrays(gl.TRIANGLES, 0, 6);
 	            });
-	            //gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-	            //gl.blendFuncSeparate(gl.ONE, gl.ZERO, gl.ONE, gl.ZERO);
 
 	            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-	            //gl.colorMask(true, true, true, false);
 	        }
 	    }]);
 
@@ -3514,11 +3640,6 @@ var Topophilia =
 	            gl.enable(gl.BLEND);
 	            gl.clearColor(0, 0, 0, 0.0); // green;
 	            gl.clear(gl.COLOR_BUFFER_BIT);
-
-	            //gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-	            //gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-	            //gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-	            //gl.blendFuncSeparate(gl.ONE, gl.ZERO, gl.ONE, gl.ZERO);
 
 	            this.inputs.forEach(function (node) {
 	                _get(Object.getPrototypeOf(DestinationNode.prototype), "_render", _this).call(_this);
@@ -4388,7 +4509,7 @@ var Topophilia =
 	            var result = (pad + n).slice(-pad.length);
 	            imageURLS.push("./assets/topophillia/meadowsweet_sd/meadowsweet_test1_png_sequence_" + result + ".png");
 	        }
-	        //imageURLS.reverse();	
+	        imageURLS.reverse();
 	        var imagePlayer = new _ImageSequencePlayerJs2["default"](imageURLS, vc);
 	        this.imagePlayer = imagePlayer;
 	        this.registerSource(imagePlayer.node);
@@ -4533,8 +4654,8 @@ var Topophilia =
 
 	        _get(Object.getPrototypeOf(Scene2.prototype), "constructor", this).call(this, vc);
 
-	        var videoNode = vc.createVideoSourceNode("assets/topophillia/honeysuckle_test1_chroma_h264.mov", undefined, undefined, true);
-	        var bgNode = vc.createVideoSourceNode("assets/topophillia/ceibwr_sea_loop1_h264.mov", undefined, undefined, true);
+	        var videoNode = vc.createVideoSourceNode("./assets/topophillia/honeysuckle_test1_chroma_h264.mov", undefined, undefined, true);
+	        var bgNode = vc.createVideoSourceNode("./assets/topophillia/ceibwr_sea_loop1_h264.mov", undefined, undefined, true);
 	        bgNode.registerCallback("loaded", function () {
 	            bgNode._element.volume = 0.0;
 	        });
@@ -4599,6 +4720,102 @@ var Topophilia =
 	})(_Scene3["default"]);
 
 	exports["default"] = Scene2;
+	module.exports = exports["default"];
+
+/***/ },
+/* 20 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var _Scene2 = __webpack_require__(18);
+
+	var _Scene3 = _interopRequireDefault(_Scene2);
+
+	var _node_modulesVideocontextSrcVideocontextJs = __webpack_require__(1);
+
+	var _node_modulesVideocontextSrcVideocontextJs2 = _interopRequireDefault(_node_modulesVideocontextSrcVideocontextJs);
+
+	var Title = (function (_Scene) {
+	    _inherits(Title, _Scene);
+
+	    function Title(vc, input, destination) {
+	        _classCallCheck(this, Title);
+
+	        _get(Object.getPrototypeOf(Title.prototype), "constructor", this).call(this, vc);
+	        this.input = input;
+	        var imagePlayer = vc.createImageSourceNode("./assets/topophillia/test_title.png");
+	        this.registerSource(imagePlayer);
+	        this.imagePlayer = imagePlayer;
+	        var hBlurEffect = vc.createTransitionNode(_node_modulesVideocontextSrcVideocontextJs2["default"].DEFINITIONS.HORIZONTAL_BLUR);
+	        var vBlurEffect = vc.createTransitionNode(_node_modulesVideocontextSrcVideocontextJs2["default"].DEFINITIONS.VERTICAL_BLUR);
+	        var titleFadeEffect = vc.createTransitionNode(_node_modulesVideocontextSrcVideocontextJs2["default"].DEFINITIONS.CROSSFADE);
+	        this.titleFadeEffect = titleFadeEffect;
+	        imagePlayer.connect(titleFadeEffect);
+
+	        hBlurEffect.connect(vBlurEffect);
+	        //imagePlayer.connect(this.output);
+	        //vBlurEffect.connect(this.output);
+
+	        hBlurEffect.blurAmount = 2.0;
+	        vBlurEffect.blurAmount = 2.0;
+
+	        this.hBlurEffect = hBlurEffect;
+	        this.vBlurEffect = vBlurEffect;
+	    }
+
+	    _createClass(Title, [{
+	        key: "start",
+	        value: function start(time) {
+	            var _this = this;
+
+	            this.hBlurEffect.transition(time, time + 5.0, 0.00, "blurAmount");
+	            this.vBlurEffect.transition(time, time + 5.0, 0.00, "blurAmount");
+	            this.titleFadeEffect.transition(time, time + 0.5, 1.0, "mix");
+	            this.vc.registerTimelineCallback(time, function () {
+	                //this.input.disconnect(this.destination);
+	                _this.input.connect(_this.hBlurEffect);
+	                _this.vBlurEffect.connect(_this.output);
+	                _this.titleFadeEffect.connect(_this.output);
+	            });
+	            _get(Object.getPrototypeOf(Title.prototype), "start", this).call(this, time);
+	        }
+	    }, {
+	        key: "stop",
+	        value: function stop(time) {
+	            var _this2 = this;
+
+	            //this.hBlurEffect.transition(time-4.0,time,1.0,"blurAmount");
+	            //this.vBlurEffect.transition(time-4.0,time,1.0,"blurAmount");
+	            this.titleFadeEffect.transition(time - 0.5, time, 0.0, "mix");
+	            this.vc.registerTimelineCallback(time, function () {
+	                _this2.titleFadeEffect.disconnect(_this2.output);
+	                _this2.vBlurEffect.disconnect(_this2.output);
+	                _this2.input.disconnect(_this2.hBlurEffect);
+	                //this.input.connect(this.destination);
+	            });
+	            _get(Object.getPrototypeOf(Title.prototype), "stop", this).call(this, time);
+	        }
+	    }]);
+
+	    return Title;
+	})(_Scene3["default"]);
+
+	exports["default"] = Title;
 	module.exports = exports["default"];
 
 /***/ }

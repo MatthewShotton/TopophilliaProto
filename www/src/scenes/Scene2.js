@@ -6,8 +6,8 @@ export default class Scene2 extends Scene{
 	constructor(vc){
 		super(vc);
 
-        let videoNode = vc.createVideoSourceNode("assets/topophillia/honeysuckle_test1_chroma_h264.mov", undefined, undefined, true);
-        let bgNode = vc.createVideoSourceNode("assets/topophillia/ceibwr_sea_loop1_h264.mov", undefined, undefined, true);
+        let videoNode = vc.createVideoSourceNode("./assets/topophillia/honeysuckle_test1_chroma_h264.mov", undefined, undefined, true);
+        let bgNode = vc.createVideoSourceNode("./assets/topophillia/ceibwr_sea_loop1_h264.mov", undefined, undefined, true);
         bgNode.registerCallback("loaded", ()=>{bgNode._element.volume = 0.0});
 
 
