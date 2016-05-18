@@ -69,13 +69,20 @@ var Topophilia =
 
 	var _VideoMandalaJs2 = _interopRequireDefault(_VideoMandalaJs);
 
+	var _scenesScene1Js = __webpack_require__(17);
+
+	var _scenesScene1Js2 = _interopRequireDefault(_scenesScene1Js);
+
+	var _scenesScene2Js = __webpack_require__(19);
+
+	var _scenesScene2Js2 = _interopRequireDefault(_scenesScene2Js);
+
 	var Topophilia = (function () {
 	    function Topophilia(canvas) {
 	        _classCallCheck(this, Topophilia);
 
 	        this.videocontext = new _node_modulesVideocontextSrcVideocontextJs2["default"](canvas);
-	        this._webcamSmoothingBuffer = [];
-
+	        this.webcamCallbacks = [];
 	        var vc = this.videocontext;
 	        //Fullscreen handler for canvas
 	        canvas.onclick = function () {
@@ -87,85 +94,36 @@ var Topophilia =
 	            }
 	        };
 
-	        //let testNode = vc.createVideoSourceNode("assets/wtf_frag.mp4", undefined, undefined, true);
-	        //this.testNode = testNode;
-	        //testNode.startAt(0);
-	        //testNode.stopAt(30);
+	        var scene1 = new _scenesScene1Js2["default"](vc);
 
-	        var bgNode = vc.createImageSourceNode("./assets/cat.jpg");
-	        bgNode.startAt(0);
-	        //bgNode.stopAt(100);
+	        this.registerWebcamCallback(scene1.webcamCallback.bind(scene1));
+	        scene1.start(0);
+	        scene1.stop(32);
 
-	        bgNode.connect(vc.destination);
-	        //testNode.connect(vc.destination);
+	        vc.registerTimelineCallback(58, function () {
+	            scene1.start(0);
+	        });
 
-	        var imageURLS = [];
-	        for (var i = 1; i < 50; i++) {
-	            var pad = "0000";
-	            var n = i.toString();
-	            var result = (pad + n).slice(-pad.length);
-	            imageURLS.push("./assets/cube/" + result + ".png");
-	        }
+	        var scene2 = new _scenesScene2Js2["default"](vc);
+	        scene2.start(30);
+	        scene2.stop(60);
 
-	        var imagePlayer = new _ImageSequencePlayerJs2["default"](imageURLS, vc);
-	        this.imagePlayer = imagePlayer;
-	        imagePlayer.node.startAt(0);
+	        var transitionNode = vc.createTransitionNode(_node_modulesVideocontextSrcVideocontextJs2["default"].DEFINITIONS.CROSSFADE);
+	        scene2.connect(transitionNode);
+	        scene1.connect(transitionNode);
 
-	        // let videoPlayer = vc.createVideoSourceNode("./assets/clip.mp4", undefined, undefined, true);
-	        // videoPlayer.startAt(0);
+	        transitionNode.mix = 0.0;
+	        //scene1.bgNode.connect(vc.destination);
 
-	        // let gsNode = vc.createEffectNode(VideoContext.DEFINITIONS.COLORTHRESHOLD);
-	        // //gsNode.colorAlphaThreshold = [0,0.8,0];
-	        // videoPlayer.connect(gsNode);
-	        // let scaleNode1 = vc.createEffectNode(VideoContext.DEFINITIONS.AAF_VIDEO_SCALE);
-	        // let offsetNode1 = vc.createEffectNode(VideoContext.DEFINITIONS.AAF_VIDEO_POSITION);
-	        // gsNode.connect(scaleNode1);
-	        // scaleNode1.scaleX = 0.6;
-	        // scaleNode1.scaleY = 0.6;
-	        // offsetNode1.positionOffsetX = 0.4;
-	        // offsetNode1.positionOffsetY = -0.4;
-	        // scaleNode1.connect(offsetNode1);
+	        transitionNode.connect(vc.destination);
+	        transitionNode.transition(30, 32, 1.0, "mix");
+	        transitionNode.transition(58, 60, 0.0, "mix");
+	        console.log(transitionNode.mix);
 
-	        // let scaleNode2 = vc.createEffectNode(VideoContext.DEFINITIONS.AAF_VIDEO_SCALE);
-	        // let offsetNode2 = vc.createEffectNode(VideoContext.DEFINITIONS.AAF_VIDEO_POSITION);
-	        // gsNode.connect(scaleNode2);
-	        // scaleNode2.scaleX = 0.6;
-	        // scaleNode2.scaleY = 0.6;
-	        // offsetNode2.positionOffsetX = -0.4;
-	        // offsetNode2.positionOffsetY = -0.4;
-	        // scaleNode2.connect(offsetNode2);
-
-	        //document.body.appendChild(VideoContext.createControlFormForNode(gsNode, "GREENSCREEN NODE"));
-
-	        var displaceNode4 = vc.createEffectNode(_node_modulesVideocontextSrcVideocontextJs2["default"].DEFINITIONS.AAF_VIDEO_POSITION);
-	        var flipNode4 = vc.createEffectNode(_node_modulesVideocontextSrcVideocontextJs2["default"].DEFINITIONS.AAF_VIDEO_FLIP);
-	        displaceNode4.positionOffsetX = 0.5;
-	        imagePlayer.node.connect(displaceNode4);
-	        displaceNode4.connect(flipNode4);
-
-	        var displaceNode5 = vc.createEffectNode(_node_modulesVideocontextSrcVideocontextJs2["default"].DEFINITIONS.AAF_VIDEO_POSITION);
-	        var flipNode5 = vc.createEffectNode(_node_modulesVideocontextSrcVideocontextJs2["default"].DEFINITIONS.AAF_VIDEO_FLIP);
-	        displaceNode5.positionOffsetX = -0.5;
-	        imagePlayer.node.connect(displaceNode5);
-	        displaceNode5.connect(flipNode5);
-
-	        //gsNode.connect(vc.destination);       
-	        flipNode4.connect(vc.destination);
-	        flipNode5.connect(vc.destination);
-	        //offsetNode1.connect(vc.destination);
-	        //offsetNode2.connect(vc.destination);
-
-	        var vMandala = new _VideoMandalaJs2["default"]("./assets/clip.mp4", [0.0, 0.50, 0.0], vc);
-	        document.body.appendChild(_node_modulesVideocontextSrcVideocontextJs2["default"].createControlFormForNode(vMandala.gsNode, "GREENSCREEN NODE"));
-
-	        vMandala.videoNode.startAt(0);
-	        vMandala.node.connect(vc.destination);
-
-	        var centerImageNode = vc.createEffectNode(_node_modulesVideocontextSrcVideocontextJs2["default"].DEFINITIONS.AAF_VIDEO_SCALE);
-	        centerImageNode.scaleX = 0.6;
-	        centerImageNode.scaleY = 0.6;
-	        centerImageNode.connect(vc.destination);
-	        imagePlayer.node.connect(centerImageNode);
+	        //let vMandala = new VideoMandala("assets/topophillia/honeysuckle_test1_chroma_h264.mov",[0.0,0.0,0.85], vc);
+	        // document.body.appendChild(VideoContext.createControlFormForNode(vMandala.gsNode, "GREENSCREEN NODE"));
+	        //vMandala.videoNode.startAt(0);
+	        //vMandala.node.connect(vc.destination);
 
 	        //this.initDebug();
 	        this.previousRate = 0.0;
@@ -173,20 +131,16 @@ var Topophilia =
 	    }
 
 	    _createClass(Topophilia, [{
+	        key: "registerWebcamCallback",
+	        value: function registerWebcamCallback(f) {
+	            this.webcamCallbacks.push(f);
+	        }
+	    }, {
 	        key: "webcamCallback",
 	        value: function webcamCallback(direction) {
-	            //  console.log(direction.u, direction.v);
-	            this._webcamSmoothingBuffer.unshift(direction.u / 50);
-	            if (this._webcamSmoothingBuffer.length > 2) {
-	                this._webcamSmoothingBuffer.pop(0);
+	            for (var i = 0; i < this.webcamCallbacks.length; i++) {
+	                this.webcamCallbacks[i](direction);
 	            }
-
-	            var progressDiff = 0;
-	            for (var i = 0; i < this._webcamSmoothingBuffer.length; i++) {
-	                progressDiff += this._webcamSmoothingBuffer[i];
-	            }
-	            progressDiff = progressDiff / this._webcamSmoothingBuffer.length;
-	            this.imagePlayer.progress += progressDiff;
 	        }
 	    }, {
 	        key: "initDebug",
@@ -1528,16 +1482,11 @@ var Topophilia =
 	                fragmentShader: "\
 	                    precision mediump float;\
 	                    uniform sampler2D u_image;\
-	                    uniform float a;\
 	                    varying vec2 v_texCoord;\
-	                    varying float v_mix;\
 	                    void main(){\
-	                        vec4 color = texture2D(u_image, v_texCoord);\
-	                        gl_FragColor = color;\
+	                        gl_FragColor = texture2D(u_image, v_texCoord);;\
 	                    }",
-	                properties: {
-	                    "a": { type: "uniform", value: 0.0 }
-	                },
+	                properties: {},
 	                inputs: ["u_image"]
 	            };
 
@@ -1691,6 +1640,7 @@ var Topophilia =
 	                    }
 	                    this._ready = true;
 	                    this._playbackRateUpdated = true;
+	                    this._triggerCallbacks("loaded");
 	                } else {
 	                    this._ready = false;
 	                }
@@ -1876,7 +1826,7 @@ var Topophilia =
 	        }
 
 	        /**
-	        * Register callbacks against one of these events: "load", "destory", "seek", "pause", "play", "ended", "durationchange"
+	        * Register callbacks against one of these events: "load", "destory", "seek", "pause", "play", "ended", "durationchange", "loaded"
 	        *
 	        * @param {String} type - the type of event to register the callback against.
 	        * @param {function} func - the function to call.
@@ -2373,6 +2323,14 @@ var Topophilia =
 	                range.setAttribute("max", "1");
 	                range.setAttribute("step", "0.01");
 	                range.setAttribute("value", propertyValue, toString());
+
+	                var number = document.createElement("input");
+	                number.setAttribute("type", "number");
+	                number.setAttribute("min", "0");
+	                number.setAttribute("max", "1");
+	                number.setAttribute("step", "0.01");
+	                number.setAttribute("value", propertyValue, toString());
+
 	                var mouseDown = false;
 	                range.onmousedown = function () {
 	                    mouseDown = true;
@@ -2381,12 +2339,21 @@ var Topophilia =
 	                    mouseDown = false;
 	                };
 	                range.onmousemove = function () {
-	                    if (mouseDown) node[propertyName] = parseFloat(range.value);
+	                    if (mouseDown) {
+	                        node[propertyName] = parseFloat(range.value);
+	                        number.value = range.value;
+	                    }
 	                };
 	                range.onchange = function () {
 	                    node[propertyName] = parseFloat(range.value);
+	                    number.value = range.value;
+	                };
+	                number.onchange = function () {
+	                    node[propertyName] = parseFloat(number.value);
+	                    range.value = number.value;
 	                };
 	                propertyParagraph.appendChild(range);
+	                propertyParagraph.appendChild(number);
 	            })();
 	        } else if (Object.prototype.toString.call(propertyValue) === '[object Array]') {
 	            var _loop2 = function () {
@@ -2396,6 +2363,14 @@ var Topophilia =
 	                range.setAttribute("max", "1");
 	                range.setAttribute("step", "0.01");
 	                range.setAttribute("value", propertyValue[i], toString());
+
+	                var number = document.createElement("input");
+	                number.setAttribute("type", "number");
+	                number.setAttribute("min", "0");
+	                number.setAttribute("max", "1");
+	                number.setAttribute("step", "0.01");
+	                number.setAttribute("value", propertyValue, toString());
+
 	                var index = i;
 	                var mouseDown = false;
 	                range.onmousedown = function () {
@@ -2405,12 +2380,22 @@ var Topophilia =
 	                    mouseDown = false;
 	                };
 	                range.onmousemove = function () {
-	                    if (mouseDown) node[propertyName][index] = parseFloat(range.value);
+	                    if (mouseDown) {
+	                        node[propertyName][index] = parseFloat(range.value);
+	                        number.value = range.value;
+	                    }
 	                };
 	                range.onchange = function () {
 	                    node[propertyName][index] = parseFloat(range.value);
+	                    number.value = range.value;
+	                };
+
+	                number.onchange = function () {
+	                    node[propertyName][index] = parseFloat(number.value);
+	                    range.value = number.value;
 	                };
 	                propertyParagraph.appendChild(range);
+	                propertyParagraph.appendChild(number);
 	            };
 
 	            for (i = 0; i < propertyValue.length; i++) {
@@ -2905,21 +2890,21 @@ var Topophilia =
 /***/ function(module, exports, __webpack_require__) {
 
 	//Matthew Shotton, R&D User Experience,© BBC 2015
-	'use strict';
+	"use strict";
 
-	Object.defineProperty(exports, '__esModule', {
+	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
 
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-	var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+	var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 	var _sourcenode = __webpack_require__(3);
 
@@ -2933,35 +2918,37 @@ var Topophilia =
 
 	        _classCallCheck(this, ImageNode);
 
-	        _get(Object.getPrototypeOf(ImageNode.prototype), 'constructor', this).call(this, src, gl, renderGraph, currentTime);
+	        _get(Object.getPrototypeOf(ImageNode.prototype), "constructor", this).call(this, src, gl, renderGraph, currentTime);
 	        this._preloadTime = preloadTime;
 	    }
 
 	    _createClass(ImageNode, [{
-	        key: '_load',
+	        key: "_load",
 	        value: function _load() {
 	            var _this2 = this;
 
 	            if (this._element !== undefined) {
+	                this._triggerCallbacks("loaded");
 	                return;
 	            }
 	            if (this._isResponsibleForElementLifeCycle) {
 	                (function () {
-	                    _get(Object.getPrototypeOf(ImageNode.prototype), '_load', _this2).call(_this2);
+	                    _get(Object.getPrototypeOf(ImageNode.prototype), "_load", _this2).call(_this2);
 	                    _this2._element = new Image();
 	                    _this2._element.setAttribute('crossorigin', 'anonymous');
 	                    _this2._element.src = _this2._elementURL;
 	                    var _this = _this2;
 	                    _this2._element.onload = function () {
 	                        _this._ready = true;
+	                        this._triggerCallbacks("loaded");
 	                    };
 	                })();
 	            }
 	        }
 	    }, {
-	        key: '_destroy',
+	        key: "_destroy",
 	        value: function _destroy() {
-	            _get(Object.getPrototypeOf(ImageNode.prototype), '_destroy', this).call(this);
+	            _get(Object.getPrototypeOf(ImageNode.prototype), "_destroy", this).call(this);
 	            if (this._isResponsibleForElementLifeCycle) {
 	                this._element.src = "";
 	                this._element = undefined;
@@ -2970,9 +2957,9 @@ var Topophilia =
 	            this._ready = false;
 	        }
 	    }, {
-	        key: '_seek',
+	        key: "_seek",
 	        value: function _seek(time) {
-	            _get(Object.getPrototypeOf(ImageNode.prototype), '_seek', this).call(this, time);
+	            _get(Object.getPrototypeOf(ImageNode.prototype), "_seek", this).call(this, time);
 	            if (this.state === _sourcenode.SOURCENODESTATE.playing || this.state === _sourcenode.SOURCENODESTATE.paused) {
 	                if (this._element === undefined) this._load();
 	                this._ready = false;
@@ -2982,10 +2969,10 @@ var Topophilia =
 	            }
 	        }
 	    }, {
-	        key: '_update',
+	        key: "_update",
 	        value: function _update(currentTime) {
 	            //if (!super._update(currentTime)) return false;
-	            _get(Object.getPrototypeOf(ImageNode.prototype), '_update', this).call(this, currentTime);
+	            _get(Object.getPrototypeOf(ImageNode.prototype), "_update", this).call(this, currentTime);
 	            if (this._startTime - this._currentTime < this._preloadTime && this._state !== _sourcenode.SOURCENODESTATE.waiting && this._state !== _sourcenode.SOURCENODESTATE.ended) this._load();
 
 	            if (this._state === _sourcenode.SOURCENODESTATE.playing) {
@@ -3000,10 +2987,10 @@ var Topophilia =
 	    }]);
 
 	    return ImageNode;
-	})(_sourcenode2['default']);
+	})(_sourcenode2["default"]);
 
-	exports['default'] = ImageNode;
-	module.exports = exports['default'];
+	exports["default"] = ImageNode;
+	module.exports = exports["default"];
 
 /***/ },
 /* 7 */
@@ -3047,6 +3034,7 @@ var Topophilia =
 	        value: function _load() {
 	            _get(Object.getPrototypeOf(CanvasNode.prototype), "_load", this).call(this);
 	            this._ready = true;
+	            this._triggerCallbacks("loaded");
 	        }
 	    }, {
 	        key: "_destroy",
@@ -3140,9 +3128,12 @@ var Topophilia =
 
 	            var gl = this._gl;
 	            gl.bindFramebuffer(gl.FRAMEBUFFER, this._framebuffer);
+	            //gl.colorMask(true, true, true, true);
+
 	            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this._texture, 0);
-	            gl.clearColor(0, 0, 0, 0); // green;
+	            gl.clearColor(0, 0, 0, 0.0); // green;
 	            gl.clear(gl.COLOR_BUFFER_BIT);
+	            gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
 	            this.inputs.forEach(function (node) {
 	                if (node === undefined) return;
@@ -3183,8 +3174,11 @@ var Topophilia =
 
 	                gl.drawArrays(gl.TRIANGLES, 0, 6);
 	            });
+	            //gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+	            //gl.blendFuncSeparate(gl.ONE, gl.ZERO, gl.ONE, gl.ZERO);
 
 	            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+	            //gl.colorMask(true, true, true, false);
 	        }
 	    }]);
 
@@ -3520,6 +3514,11 @@ var Topophilia =
 	            gl.enable(gl.BLEND);
 	            gl.clearColor(0, 0, 0, 0.0); // green;
 	            gl.clear(gl.COLOR_BUFFER_BIT);
+
+	            //gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+	            //gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+	            //gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+	            //gl.blendFuncSeparate(gl.ONE, gl.ZERO, gl.ONE, gl.ZERO);
 
 	            this.inputs.forEach(function (node) {
 	                _get(Object.getPrototypeOf(DestinationNode.prototype), "_render", _this).call(_this);
@@ -4125,6 +4124,8 @@ var Topophilia =
 
 	var ImageSequencePlayer = (function () {
 		function ImageSequencePlayer(image_urls, vc) {
+			var _this2 = this;
+
 			_classCallCheck(this, ImageSequencePlayer);
 
 			this.images = [];
@@ -4166,8 +4167,9 @@ var Topophilia =
 
 			this._node = vc.createCanvasSourceNode(this.canvas);
 			var _this = this;
+
 			this.images[0].onload = function () {
-				_this.ctx.drawImage(_this.images[0], 0, 0);
+				_this.ctx.drawImage(_this.images[0], 0, 0, _this2.canvas.width, _this2.canvas.height);
 			};
 		}
 
@@ -4177,23 +4179,29 @@ var Topophilia =
 				this._progress = progress;
 				var index = Math.abs(Math.round(progress * this.images.length % (this.images.length - 1)));
 
-				/*if (this._blurCounter < 1.0){
-	   	this._blurCounter += this._blurAmount;
-	   }
-	   	if (this._previousIndex !== index){
-	   	this._blurCounter =0.0;
-	   }
-	   if (this._blurCounter > 1.0){
-	   	this._blurCounter = 0.0;
-	   }else{
-	   	this.ctx.globalAlpha = this._blurAmount;
-	   	this.ctx.drawImage(this.images[index],0,0);
-	   }*/
+				// if (this._blurCounter < 1.0){
+				// 	this._blurCounter += this._blurAmount;
+				// }
+
+				// if (this._previousIndex !== index){
+				// 	this._blurCounter =0.0;
+				// }
+				// if (this._blurCounter > 1.0){
+				// 	this._blurCounter = 0.0;
+				// }else{
+				// 	this.ctx.globalAlpha = this._blurAmount;
+				// 	this.ctx.clearRect(0,0,this.canvas.width, this.canvas.height);
+				// 	this.ctx.drawImage(this.images[this._previousIndex],0,0,this.canvas.width, this.canvas.height);
+				// 	this.ctx.globalAlpha = 1.0-this._blurAmount;
+				// 	this.ctx.globalAlpha = 1.0;
+				// 	this.ctx.drawImage(this.images[index],0,0,this.canvas.width, this.canvas.height);
+				// }
 
 				if (this._previousIndex !== index) {
-					this.ctx.globalAlpha = 1.0;
-					//this.ctx.clearRect(0,0,this.canvas.width, this.canvas.height);
-					this.ctx.drawImage(this.images[index], 0, 0);
+					//this.ctx.globalAlpha = 1.0;
+					this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+					this.ctx.drawImage(this.images[index], 0, 0, this.canvas.width, this.canvas.height);
+					//this.ctx.drawImage(this.images[index],0,0);
 				}
 				this._previousIndex = index;
 			},
@@ -4326,6 +4334,271 @@ var Topophilia =
 	};
 
 	exports["default"] = VideoMandala;
+	module.exports = exports["default"];
+
+/***/ },
+/* 17 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var _Scene2 = __webpack_require__(18);
+
+	var _Scene3 = _interopRequireDefault(_Scene2);
+
+	var _ImageSequencePlayerJs = __webpack_require__(15);
+
+	var _ImageSequencePlayerJs2 = _interopRequireDefault(_ImageSequencePlayerJs);
+
+	var Scene1 = (function (_Scene) {
+	    _inherits(Scene1, _Scene);
+
+	    function Scene1(vc) {
+	        _classCallCheck(this, Scene1);
+
+	        _get(Object.getPrototypeOf(Scene1.prototype), "constructor", this).call(this, vc);
+	        this._webcamSmoothingBuffer = [];
+
+	        var bgNode = vc.createVideoSourceNode("assets/topophillia/ceibwr_sea_loop2_h264.mov", undefined, undefined, true);
+	        this.registerSource(bgNode);
+	        bgNode.registerCallback("loaded", function () {
+	            bgNode._element.volume = 0.0;
+	        });
+	        this.bgNode = bgNode;
+	        bgNode.connect(this.output);
+
+	        var imageURLS = [];
+	        for (var i = 1; i < 141; i++) {
+	            var pad = "00000";
+	            var n = i.toString();
+	            var result = (pad + n).slice(-pad.length);
+	            imageURLS.push("./assets/topophillia/meadowsweet_sd/meadowsweet_test1_png_sequence_" + result + ".png");
+	        }
+	        //imageURLS.reverse();	
+	        var imagePlayer = new _ImageSequencePlayerJs2["default"](imageURLS, vc);
+	        this.imagePlayer = imagePlayer;
+	        this.registerSource(imagePlayer.node);
+	        //this.output = imagePlayer.node;
+	        //this.imagePlayer = imagePlayer;
+	        imagePlayer.node.connect(this.output);
+	    }
+
+	    _createClass(Scene1, [{
+	        key: "webcamCallback",
+	        value: function webcamCallback(direction) {
+	            //  console.log(direction.u, direction.v);
+	            this._webcamSmoothingBuffer.unshift(direction.u / 80);
+	            if (this._webcamSmoothingBuffer.length > 10) {
+	                this._webcamSmoothingBuffer.pop(0);
+	            }
+
+	            var progressDiff = 0;
+	            for (var i = 0; i < this._webcamSmoothingBuffer.length; i++) {
+	                progressDiff += this._webcamSmoothingBuffer[i];
+	            }
+	            progressDiff = progressDiff / this._webcamSmoothingBuffer.length;
+	            this.imagePlayer.progress += progressDiff;
+	        }
+	    }]);
+
+	    return Scene1;
+	})(_Scene3["default"]);
+
+	exports["default"] = Scene1;
+	module.exports = exports["default"];
+
+/***/ },
+/* 18 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var _node_modulesVideocontextSrcVideocontextJs = __webpack_require__(1);
+
+	var _node_modulesVideocontextSrcVideocontextJs2 = _interopRequireDefault(_node_modulesVideocontextSrcVideocontextJs);
+
+	var Scene = (function () {
+		function Scene(vc) {
+			_classCallCheck(this, Scene);
+
+			this.vc = vc;
+			this.output = vc.createCompositingNode(_node_modulesVideocontextSrcVideocontextJs2["default"].DEFINITIONS.COMBINE);
+			this.sources = [];
+		}
+
+		_createClass(Scene, [{
+			key: "registerSource",
+			value: function registerSource(node) {
+				this.sources.push(node);
+			}
+		}, {
+			key: "start",
+			value: function start(time) {
+				for (var i = 0; i < this.sources.length; i++) {
+					this.sources[i].start(time);
+				}
+			}
+		}, {
+			key: "stop",
+			value: function stop(time) {
+				var _this = this;
+
+				for (var i = 0; i < this.sources.length; i++) {
+					this.sources[i].stop(time);
+				}
+				this.vc.registerTimelineCallback(time, function () {
+					_this.clearTimelineState();
+				});
+			}
+		}, {
+			key: "connect",
+			value: function connect(node) {
+				this.output.connect(node);
+			}
+		}, {
+			key: "disconnect",
+			value: function disconnect(node) {
+				this.output.disconnect(node);
+			}
+		}, {
+			key: "clearTimelineState",
+			value: function clearTimelineState() {
+				for (var i = 0; i < this.sources.length; i++) {
+					this.sources[i].clearTimelineState();
+				}
+			}
+		}]);
+
+		return Scene;
+	})();
+
+	exports["default"] = Scene;
+	module.exports = exports["default"];
+
+/***/ },
+/* 19 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var _Scene2 = __webpack_require__(18);
+
+	var _Scene3 = _interopRequireDefault(_Scene2);
+
+	var _ImageSequencePlayerJs = __webpack_require__(15);
+
+	var _ImageSequencePlayerJs2 = _interopRequireDefault(_ImageSequencePlayerJs);
+
+	var Scene2 = (function (_Scene) {
+	    _inherits(Scene2, _Scene);
+
+	    function Scene2(vc) {
+	        _classCallCheck(this, Scene2);
+
+	        _get(Object.getPrototypeOf(Scene2.prototype), "constructor", this).call(this, vc);
+
+	        var videoNode = vc.createVideoSourceNode("assets/topophillia/honeysuckle_test1_chroma_h264.mov", undefined, undefined, true);
+	        var bgNode = vc.createVideoSourceNode("assets/topophillia/ceibwr_sea_loop1_h264.mov", undefined, undefined, true);
+	        bgNode.registerCallback("loaded", function () {
+	            bgNode._element.volume = 0.0;
+	        });
+
+	        this.registerSource(videoNode);
+	        this.registerSource(bgNode);
+
+	        var gsNode = vc.createEffectNode({
+	            title: "Hue Threshold",
+	            description: "Turns all pixels transparent depending on their closeness to a specified hue value.",
+	            vertexShader: "\
+	                    attribute vec2 a_position;\
+	                    attribute vec2 a_texCoord;\
+	                    varying vec2 v_texCoord;\
+	                    void main() {\
+	                        gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);\
+	                        v_texCoord = a_texCoord;\
+	                    }",
+	            fragmentShader: "\
+	                    precision mediump float;\
+	                    uniform sampler2D u_image;\
+	                    uniform float hueTarget;\
+	                    uniform float alphaCeiling;\
+	                    varying vec2 v_texCoord;\
+	                    varying float v_mix;\
+	                    \
+	                    vec3 rgb2hsv(vec3 c)\
+	                    {\
+	                        vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);\
+	                        vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));\
+	                        vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));\
+	                        \
+	                        float d = q.x - min(q.w, q.y);\
+	                        float e = 1.0e-10;\
+	                        return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);\
+	                    }\
+	                    \
+	                    void main(){\
+	                        vec4 color = texture2D(u_image, v_texCoord);\
+	                        vec3 hsv = rgb2hsv(vec3(color[0],color[1],color[2]));\
+	                        float alpha = abs(hueTarget - hsv[0])*2.0;\
+	                        if (alpha>alphaCeiling){\
+	                            alpha = 1.0;\
+	                        }\
+	                        color = vec4(color[0], color[1], color[2], alpha);\
+	                        \
+	                        gl_FragColor = color;\
+	                    }",
+	            properties: {
+	                "hueTarget": { type: "uniform", "value": 0.45 },
+	                "alphaCeiling": { type: "uniform", "value": 0.28 }
+	            },
+	            inputs: ["u_image"]
+	        });
+
+	        bgNode.connect(this.output);
+	        videoNode.connect(gsNode);
+	        gsNode.connect(this.output);
+	    }
+
+	    return Scene2;
+	})(_Scene3["default"]);
+
+	exports["default"] = Scene2;
 	module.exports = exports["default"];
 
 /***/ }

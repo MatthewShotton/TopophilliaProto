@@ -9,12 +9,12 @@
     <p>
         <canvas id="canvas" width="960", height="540"></canvas>
     </p>
-    <p>
+   <!--  <p>
         <canvas id="timeline-canvas" width="960", height="30"></canvas>
     </p>
     <p>
         <canvas id="graph-canvas" width="960", height="400"></canvas>
-    </p>
+    </p> -->
 
     <script type="text/javascript">
         window.onload = function(){
@@ -23,9 +23,7 @@
 
             var webCamFlow = new oflow.WebCamFlow(undefined, 4);
          	var flow = new oflow.WebCamFlow();
-			flow.onCalculated(function(direction){
-				topophilia.webcamCallback(direction);
-			});
+			flow.onCalculated(topophilia.webcamCallback.bind(topophilia));
 			// Starts capturing the flow from webcamera:
 			flow.startCapture();
 			// once you are done capturing call

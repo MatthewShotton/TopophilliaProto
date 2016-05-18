@@ -17,9 +17,10 @@ export default class ImageSequencePlayer{
 		}
 		this._node = vc.createCanvasSourceNode(this.canvas);
 		let _this = this;
-		this.images[0].onload= function(){
-			_this.ctx.drawImage(_this.images[0],0,0);
-		}
+
+
+
+		this.images[0].onload = ()=>{_this.ctx.drawImage(_this.images[0],0,0, this.canvas.width, this.canvas.height);};
 	}
 
 
@@ -28,24 +29,31 @@ export default class ImageSequencePlayer{
 		let index = Math.abs(Math.round((progress * this.images.length)%(this.images.length-1)));
 		
 
-		/*if (this._blurCounter < 1.0){
-			this._blurCounter += this._blurAmount;
-		}
+		// if (this._blurCounter < 1.0){
+		// 	this._blurCounter += this._blurAmount;
+		// }
 
-		if (this._previousIndex !== index){
-			this._blurCounter =0.0;
-		}
-		if (this._blurCounter > 1.0){
-			this._blurCounter = 0.0;
-		}else{
-			this.ctx.globalAlpha = this._blurAmount;
-			this.ctx.drawImage(this.images[index],0,0);
-		}*/
+		// if (this._previousIndex !== index){
+		// 	this._blurCounter =0.0;
+		// }
+		// if (this._blurCounter > 1.0){
+		// 	this._blurCounter = 0.0;
+		// }else{
+		// 	this.ctx.globalAlpha = this._blurAmount;
+		// 	this.ctx.clearRect(0,0,this.canvas.width, this.canvas.height);
+		// 	this.ctx.drawImage(this.images[this._previousIndex],0,0,this.canvas.width, this.canvas.height);
+		// 	this.ctx.globalAlpha = 1.0-this._blurAmount;
+		// 	this.ctx.globalAlpha = 1.0;
+		// 	this.ctx.drawImage(this.images[index],0,0,this.canvas.width, this.canvas.height);
+		// }
+
+	
 
 		if(this._previousIndex !== index){
-			this.ctx.globalAlpha = 1.0;
-			//this.ctx.clearRect(0,0,this.canvas.width, this.canvas.height);
-			this.ctx.drawImage(this.images[index],0,0);
+			//this.ctx.globalAlpha = 1.0;
+			this.ctx.clearRect(0,0,this.canvas.width, this.canvas.height);
+			this.ctx.drawImage(this.images[index],0,0, this.canvas.width, this.canvas.height);
+			//this.ctx.drawImage(this.images[index],0,0);
 		}
 		this._previousIndex = index;
 
